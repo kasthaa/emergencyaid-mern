@@ -1,6 +1,6 @@
  import { useState } from "react";
  import { supabase } from "./supabaseClient";
- import Login from "./Logi.jsx";
+ import Login from "./Login.jsx";
 import "./App.css";
 
 const emergencyTypes = [
