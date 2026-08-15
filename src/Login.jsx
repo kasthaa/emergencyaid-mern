@@ -1,4 +1,4 @@
-import "./logi.css"
+import "./Login.css"
 import { useState } from "react";
 import { supabase } from "./supabaseClient";
 
