@@ -32,7 +32,7 @@ function Login({ onLoginSuccess }) {
 
       if (isSignup) {
         const response = await fetch(
-          "http://localhost:5000/api/auth/register",
+          "http://emergencyaid-mern.onrender.com/api/auth/register",
           {
             method: "POST",
             headers: {
@@ -68,7 +68,7 @@ function Login({ onLoginSuccess }) {
 
       else {
         const response = await fetch(
-          "http://localhost:5000/api/auth/login",
+          "http://emergencyaid-mern.onrender.com/api/auth/login",
           {
             method: "POST",
             headers: {
