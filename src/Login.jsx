@@ -1,12 +1,13 @@
-import "./Login.css"
+ import "./Login.css";
 import { useState } from "react";
-import { supabase } from "./supabaseClient";
 
 function Login({ onLoginSuccess }) {
   const [isSignup, setIsSignup] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const handleAuth = async (e) => {
@@ -17,40 +18,86 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
+    if (isSignup && !name) {
+      alert("Please enter your full name.");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // ===============================
+      // SIGN UP
+      // ===============================
+
       if (isSignup) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name,
+        const response = await fetch(
+          "http://localhost:5000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-          },
-        });
+            body: JSON.stringify({
+              name,
+              email,
+              password,
+            }),
+          }
+        );
 
-        if (error) throw error;
+        const data = await response.json();
 
-        if (data.user) {
-          alert(
-            "Account created successfully! Please check your email if verification is required."
-          );
-
-          onLoginSuccess(data.user);
+        if (!response.ok) {
+          throw new Error(data.message || "Registration failed");
         }
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
 
-        if (error) throw error;
+        // Save authentication data
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        alert("Account created successfully!");
+
+        onLoginSuccess(data.user);
+      }
+
+      // ===============================
+      // LOGIN
+      // ===============================
+
+      else {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
+        }
+
+        // Save authentication data
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        alert("Login successful!");
 
         onLoginSuccess(data.user);
       }
     } catch (error) {
+      console.error("Authentication error:", error);
       alert(error.message);
     } finally {
       setLoading(false);
@@ -71,9 +118,11 @@ function Login({ onLoginSuccess }) {
         </p>
 
         <form onSubmit={handleAuth}>
+          {/* NAME - SIGNUP ONLY */}
           {isSignup && (
             <div className="input-group">
               <label>Full Name</label>
+
               <input
                 type="text"
                 placeholder="Enter your name"
@@ -84,8 +133,10 @@ function Login({ onLoginSuccess }) {
             </div>
           )}
 
+          {/* EMAIL */}
           <div className="input-group">
             <label>Email</label>
+
             <input
               type="email"
               placeholder="Enter your email"
@@ -95,8 +146,10 @@ function Login({ onLoginSuccess }) {
             />
           </div>
 
+          {/* PASSWORD */}
           <div className="input-group">
             <label>Password</label>
+
             <input
               type="password"
               placeholder="Enter your password"
@@ -107,7 +160,12 @@ function Login({ onLoginSuccess }) {
             />
           </div>
 
-          <button className="login-submit-btn" type="submit" disabled={loading}>
+          {/* SUBMIT */}
+          <button
+            className="login-submit-btn"
+            type="submit"
+            disabled={loading}
+          >
             {loading
               ? "Please wait..."
               : isSignup
@@ -116,12 +174,20 @@ function Login({ onLoginSuccess }) {
           </button>
         </form>
 
+        {/* SWITCH LOGIN / SIGNUP */}
         <div className="login-switch">
-          {isSignup ? "Already have an account?" : "Don't have an account?"}
+          {isSignup
+            ? "Already have an account?"
+            : "Don't have an account?"}
 
           <button
             type="button"
-            onClick={() => setIsSignup(!isSignup)}
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setEmail("");
+              setPassword("");
+              setName("");
+            }}
           >
             {isSignup ? " Login" : " Sign Up"}
           </button>

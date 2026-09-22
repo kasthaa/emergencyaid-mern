@@ -26,12 +26,6 @@ const emergencyRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    status: {
-      type: String,
-      enum: ["pending", "accepted", "completed"],
-      default: "pending",
-    },
   },
   {
     timestamps: true,

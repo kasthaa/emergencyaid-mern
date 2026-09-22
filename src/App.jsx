@@ -1,5 +1,4 @@
  import { useState } from "react";
- import { supabase } from "./supabaseClient";
  import Login from "./Login.jsx";
 import "./App.css";
 

@@ -1,37 +1,60 @@
+ const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
 
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
+const authRoutes = require("./routes/authRoutes");
+const emergencyRoutes = require("./routes/emergencyRoutes");
 
 const app = express();
 
-app.use(cors());
+// ===============================
+// Middleware
+// ===============================
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.json());
 
-const emergencyRoutes = require("./routes/emergencyRoutes");
+// ===============================
+// Routes
+// ===============================
 
-app.use("/api/emergencies", emergencyRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/emergency", emergencyRoutes);
 
-// MongoDB connection
+// ===============================
+// Test Route
+// ===============================
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "EmergencyAid backend is running",
+  });
+});
+
+// ===============================
+// MongoDB Connection
+// ===============================
+
+const PORT = process.env.PORT || 5000;
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected successfully");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
   .catch((error) => {
-    console.error("MongoDB connection failed:", error.message);
+    console.error("MongoDB connection failed:");
+    console.error(error.message);
   });
-
-// Test route
-app.get("/", (req, res) => {
-  res.json({
-    message: "EmergencyAid API is running 🚑",
-  });
-});
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
