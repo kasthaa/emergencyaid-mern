@@ -1,6 +1,11 @@
  import "./Login.css";
 import { useState } from "react";
 
+// ===============================
+// BACKEND API URL
+// ===============================
+const API_URL = "https://emergencyaid-mern.onrender.com";
+
 function Login({ onLoginSuccess }) {
   const [isSignup, setIsSignup] = useState(false);
 
@@ -18,7 +23,7 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
-    if (isSignup && !name) {
+    if (isSignup && !name.trim()) {
       alert("Please enter your full name.");
       return;
     }
@@ -32,15 +37,15 @@ function Login({ onLoginSuccess }) {
 
       if (isSignup) {
         const response = await fetch(
-          "http://emergencyaid-mern.onrender.com/api/auth/register",
+          ${API_URL}/api/auth/register,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              name,
-              email,
+              name: name.trim(),
+              email: email.trim(),
               password,
             }),
           }
@@ -49,13 +54,27 @@ function Login({ onLoginSuccess }) {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Registration failed");
+          throw new Error(
+            data.message || "Registration failed"
+          );
         }
 
         // Save authentication data
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userId", data.user.id);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        if (data.user) {
+          localStorage.setItem(
+            "userId",
+            data.user.id || data.user._id
+          );
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
+          );
+        }
 
         alert("Account created successfully!");
 
@@ -68,14 +87,14 @@ function Login({ onLoginSuccess }) {
 
       else {
         const response = await fetch(
-          "http://emergencyaid-mern.onrender.com/api/auth/login",
+          ${API_URL}/api/auth/login,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              email,
+              email: email.trim(),
               password,
             }),
           }
@@ -84,13 +103,27 @@ function Login({ onLoginSuccess }) {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Login failed");
+          throw new Error(
+            data.message || "Login failed"
+          );
         }
 
         // Save authentication data
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userId", data.user.id);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        if (data.user) {
+          localStorage.setItem(
+            "userId",
+            data.user.id || data.user._id
+          );
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
+          );
+        }
 
         alert("Login successful!");
 
@@ -98,7 +131,14 @@ function Login({ onLoginSuccess }) {
       }
     } catch (error) {
       console.error("Authentication error:", error);
-      alert(error.message);
+
+      if (error instanceof TypeError) {
+        alert(
+          "Unable to connect to the server. Please check your internet connection or try again."
+        );
+      } else {
+        alert(error.message || "Something went wrong.");
+      }
     } finally {
       setLoading(false);
     }
@@ -107,6 +147,7 @@ function Login({ onLoginSuccess }) {
   return (
     <div className="login-page">
       <div className="login-card">
+
         <div className="login-logo">🚨</div>
 
         <h1>EmergencyAid</h1>
@@ -118,6 +159,7 @@ function Login({ onLoginSuccess }) {
         </p>
 
         <form onSubmit={handleAuth}>
+
           {/* NAME - SIGNUP ONLY */}
           {isSignup && (
             <div className="input-group">
@@ -172,10 +214,12 @@ function Login({ onLoginSuccess }) {
               ? "Create Account"
               : "Login"}
           </button>
+
         </form>
 
         {/* SWITCH LOGIN / SIGNUP */}
         <div className="login-switch">
+
           {isSignup
             ? "Already have an account?"
             : "Don't have an account?"}
@@ -191,7 +235,9 @@ function Login({ onLoginSuccess }) {
           >
             {isSignup ? " Login" : " Sign Up"}
           </button>
+
         </div>
+
       </div>
     </div>
   );
