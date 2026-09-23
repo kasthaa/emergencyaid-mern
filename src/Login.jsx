@@ -37,7 +37,7 @@ function Login({ onLoginSuccess }) {
 
       if (isSignup) {
         const response = await fetch(
-          ${API_URL}/api/auth/register,
+          `${API_URL}/api/auth/register`,
           {
             method: "POST",
             headers: {
@@ -87,7 +87,7 @@ function Login({ onLoginSuccess }) {
 
       else {
         const response = await fetch(
-          ${API_URL}/api/auth/login,
+          `${API_URL}/api/auth/login`,
           {
             method: "POST",
             headers: {
