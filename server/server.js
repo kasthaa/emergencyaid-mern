@@ -12,7 +12,6 @@ const app = express();
 // Middleware
 // ===============================
 
-// Allow requests from your Vercel frontend
 app.use(
   cors({
     origin: "*",
@@ -21,7 +20,6 @@ app.use(
   })
 );
 
-// Read JSON request bodies
 app.use(express.json());
 
 // ===============================
@@ -71,7 +69,6 @@ app.use((err, req, res, next) => {
 // ===============================
 
 const PORT = process.env.PORT || 5000;
-
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
